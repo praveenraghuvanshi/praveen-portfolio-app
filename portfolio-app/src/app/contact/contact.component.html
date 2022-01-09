@@ -13,38 +13,40 @@
             </div>
             <div class="col-md-9">
                 <div class="contact-form">
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="identite">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="identite" placeholder="Enter your name"
-                                name="fname">
+                    <form [formGroup]=contactForm (ngSubmit)="onSubmit(contactForm)" novalidate>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="name">Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name"
+                                formControlName="name">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="email">E-mail:</label>
-                        <div class="col-sm-10">
-                            <input type="email" class="form-control" id="email" placeholder="Enter your E-mail" name="email">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="email">E-mail:</label>
+                            <div class="col-sm-10">
+                                <input type="email" class="form-control" id="email" placeholder="Enter your E-mail" formControlName="email">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="object">Subject:</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="object" placeholder="Enter Subject"
-                                name="object">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="subject">Subject:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="subject" placeholder="Enter Subject"
+                                formControlName="subject">
+                            </div>
                         </div>
-                    </div>
-                  
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="comment">Message:</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" rows="5" id="comment"></textarea>
+                    
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="comment">Message:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="5" id="comment" formControlName="message"></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-default">Submit</button>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-default">Submit</button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
