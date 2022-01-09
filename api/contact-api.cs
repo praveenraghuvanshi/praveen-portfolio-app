@@ -46,7 +46,7 @@ namespace Portfolio.Function
         [FunctionName("contact_api")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "contact")] HttpRequest req,
-            [Table("feedback", "Application", "FeedbackId")] IAsyncCollector<Feedback> feedbackCollector,
+            [Table("feedback", "Application", "FeedbackId"), StorageAccount("AZURE_STORAGE_CONNECTION_STRING")] IAsyncCollector<Feedback> feedbackCollector,
             ILogger log)
         {
             log.LogInformation("Inside Function!!!");
