@@ -12,7 +12,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     var options = {
-      strings: ['','Full-Stack', 'WEB','Mobile'],
+      strings: ['','Cloud-Native', 'Microservices', '.Net(C#)', 'AI/ML', 'Web'],
       typeSpeed: 120,
       backSpeed: 100,
       loop: true,
