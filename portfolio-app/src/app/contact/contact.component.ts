@@ -41,6 +41,7 @@ export class ContactComponent implements OnInit {
     console.log('Message', form.value.message);
 
     let body = {
+      application : "portfolio",
       name : form.value.name,
       email : form.value.email,
       subject : form.value.subject,
@@ -48,14 +49,12 @@ export class ContactComponent implements OnInit {
     }
 
     // Simple POST request with a JSON body and response type <any>
-    this.http.post('api/contact', body, {responseType: 'text'}).subscribe({
+    this.http.post('api/contact', body, {responseType: 'json'}).subscribe({
       next: data => {
           console.log("success");
-          console.log(data);
-          this.response = data;
+          console.log(JSON.stringify(data));
       },
       error: error => {
-          this.response = error.message;
           console.error('There was an error!', error);
       }
   })
