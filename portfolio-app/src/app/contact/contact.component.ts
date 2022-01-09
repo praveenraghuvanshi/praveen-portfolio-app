@@ -15,6 +15,8 @@ export class ContactComponent implements OnInit {
   subject: FormControl;
   message: FormControl;
 
+  response: string = '';
+
   constructor(private http: HttpClient) {
     this.name = new FormControl();
     this.email = new FormControl();
@@ -46,10 +48,17 @@ export class ContactComponent implements OnInit {
     }
 
     // Simple POST request with a JSON body and response type <any>
-    this.http.post<any>('api/contact', body).subscribe(data => {
-      console.log(data);
-      console.log("Contact");
+    this.http.post('api/contact', body, {responseType: 'text'}).subscribe({
+      next: data => {
+          console.log("success");
+          console.log(data);
+          this.response = data;
+      },
+      error: error => {
+          this.response = error.message;
+          console.error('There was an error!', error);
+      }
   })
-  }
+}
 
 }

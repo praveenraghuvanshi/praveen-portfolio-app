@@ -14,23 +14,14 @@ namespace Portfolio.Function
     {
         [FunctionName("contact_api")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "contact")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "contact")] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string name = req.Query["name"];
-
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
 
-            log.LogInformation($"Payload: {requestBody}");
-
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {requestBody}. This HTTP triggered function executed successfully.";
-
+            string responseMessage = $"Request processed: {Guid.NewGuid()}, {requestBody}";
+            
             return new OkObjectResult(responseMessage);
         }
     }
