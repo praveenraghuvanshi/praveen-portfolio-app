@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-contact',
@@ -17,7 +18,7 @@ export class ContactComponent implements OnInit {
 
   response: string = '';
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private toastr: ToastrService) {
     this.name = new FormControl();
     this.email = new FormControl();
     this.subject = new FormControl();
@@ -33,6 +34,14 @@ export class ContactComponent implements OnInit {
    }
 
   ngOnInit(): void {    
+  }
+
+  success(message:string): void {
+    this.toastr.success(message);
+  }
+
+  error(message:string): void {
+    this.toastr.error(message);
   }
 
   onSubmit(form: FormGroup) {
@@ -53,9 +62,11 @@ export class ContactComponent implements OnInit {
       next: data => {
           console.log("success");
           console.log(JSON.stringify(data));
+          this.success("Submitted successfully");
       },
       error: error => {
           console.error('There was an error!', error);
+          this.error("Error occured while submitting");
       }
   })
 }
