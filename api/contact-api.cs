@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs.Extensions.ServiceBus;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -25,10 +26,7 @@ namespace Portfolio.Function
 
     public class Feedback
     {
-        public string PartitionKey { get; set; }
-        public string RowKey { get; set; }
-
-        public string FeedbackId => RowKey;
+        public string FeedbackId => Guid.NewGuid().ToString();
 
         public string Name { get; set; }
 
@@ -38,7 +36,7 @@ namespace Portfolio.Function
 
         public string Message { get; set; }
 
-        public string Application => PartitionKey;
+        public string Application { get; set; }
     }
 
     public static class contact_api
@@ -46,7 +44,7 @@ namespace Portfolio.Function
         [FunctionName("contact_api")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "contact")] HttpRequest req,
-            [Table("feedback", "Application", "FeedbackId"), StorageAccount("AZURE_STORAGE_CONNECTION_STRING")] IAsyncCollector<Feedback> feedbackCollector,
+            [ServiceBus("feedbackqueue", Microsoft.Azure.WebJobs.ServiceBus.ServiceBusEntityType.Queue, Connection = "AZURE_SERVICE_BUS_CS")] IAsyncCollector<string> feedbackCollector, //StorageAccount("AZURE_SERVICE_BUS_CONNECTION_STRING")] IAsyncCollector<Feedback> feedbackCollector,
             ILogger log)
         {
             log.LogInformation("Inside Function!!!");
@@ -56,17 +54,16 @@ namespace Portfolio.Function
             var application = (string)feedbackRequestData.Application;
             log.LogInformation(application);
 
-
             var feedback = new Feedback
             {
-                PartitionKey = feedbackRequestData.Application,
-                RowKey = Guid.NewGuid().ToString(),
                 Name = feedbackRequestData.Name,
                 Email = feedbackRequestData.Email,
-                Message = feedbackRequestData.Message
+                Subject = feedbackRequestData.Subject,
+                Message = feedbackRequestData.Message,
+                Application = feedbackRequestData.Application
             };
 
-            await feedbackCollector.AddAsync(feedback);
+            await feedbackCollector.AddAsync(JsonConvert.SerializeObject(feedback));
             await feedbackCollector.FlushAsync();
 
             return new OkObjectResult(feedback);
