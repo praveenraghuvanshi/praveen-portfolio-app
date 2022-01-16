@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 
@@ -10,30 +10,19 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ContactComponent implements OnInit {
 
+  application:string = "WebApp";
   contactForm: FormGroup;
-  name: FormControl;
-  email: FormControl;
-  subject: FormControl;
-  message: FormControl;
 
-  response: string = '';
-
-  constructor(private http: HttpClient, private toastr: ToastrService) {
-    this.name = new FormControl();
-    this.email = new FormControl();
-    this.subject = new FormControl();
-    this.message = new FormControl();
-
-    this.contactForm = new FormGroup({
-      'name' : this.name,
-      'email' : this.email,
-      'subject' : this.subject,
-      'message' : this.message
-    });
-
+  constructor(private formBuilder: FormBuilder, private http: HttpClient, private toastr: ToastrService) {
+    this.contactForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      subject: ['', Validators.required],
+      message: ['']
+    }); 
    }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
   }
 
   success(message:string): void {
@@ -45,12 +34,13 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit(form: FormGroup) {
-    console.log('Name', form.value.name);
-    console.log('Email', form.value.email);
-    console.log('Message', form.value.message);
+    // stop here if form is invalid
+    if (this.contactForm.invalid) {
+      return;
+    }
 
     let body = {
-      application : "portfolio",
+      application : this.application,
       name : form.value.name,
       email : form.value.email,
       subject : form.value.subject,
@@ -61,14 +51,12 @@ export class ContactComponent implements OnInit {
     this.http.post('api/contact', body, {responseType: 'json'}).subscribe({
       next: data => {
           console.log("success");
-          console.log(JSON.stringify(data));
           this.success("Submitted successfully");
       },
       error: error => {
           console.error('There was an error!', error);
           this.error("Error occured while submitting");
       }
-  })
-}
-
+    })
+  }
 }

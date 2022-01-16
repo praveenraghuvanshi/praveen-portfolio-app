@@ -1,14 +1,21 @@
 # Praveen's Portfolio
 
-UI/UX : https://calm-mud-069841900.azurestaticapps.net/
+URL: https://praveenraghuvanshi.com
+
+Alternate URL: https://calm-mud-069841900.azurestaticapps.net/
 
 ### To Do
 
 - [ ] Email support
 - [ ] Projects
 - [ ] Articles
+- [ ] Achievements
+  - [ ] Patent
+  - [ ] Azure Certification
+
 - [ ] Recommendation
 - [ ] Footer
+- [ ] Add Form validation
 
 
 
