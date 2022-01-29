@@ -16,6 +16,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { ReCaptchaModule } from 'angular-recaptcha3';
+import { environment } from './../environments/environment';
 
 @NgModule({
   declarations: [
@@ -37,6 +39,15 @@ import { ToastrModule } from 'ngx-toastr';
     HttpClientModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
+    ReCaptchaModule.forRoot({
+      invisible: {
+        sitekey: environment.recaptcha.siteKey, 
+      },
+      normal: {
+        sitekey: environment.recaptcha.siteKey, 
+      },
+      language: 'en'
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]

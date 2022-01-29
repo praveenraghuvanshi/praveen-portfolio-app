@@ -39,6 +39,12 @@
                                 <textarea class="form-control" rows="5" id="comment" formControlName="message"></textarea>
                             </div>
                         </div>
+                        <recaptcha
+                            [size]="'invisible'">
+                        </recaptcha>
+                        <recaptcha
+                            [size]="'normal'">
+                        </recaptcha>
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="submit" class="btn btn-default" [disabled]="!contactForm.valid">Submit</button>
