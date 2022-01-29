@@ -8,6 +8,9 @@ using Microsoft.Azure.WebJobs.Extensions.ServiceBus;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Collections.Generic;
 
 namespace Portfolio.Function
 {
@@ -22,6 +25,8 @@ namespace Portfolio.Function
         public string Message { get; set; }
 
         public string Application { get; set; }
+
+        public string Token { get; set; }
     }
 
     public class Feedback
@@ -39,6 +44,19 @@ namespace Portfolio.Function
         public string Application { get; set; }
     }
 
+    public class RecapatchaResponse
+    {
+        public bool Success { get; set; }
+
+        [JsonProperty("challenge_ts")]
+        public DateTimeOffset ChallengeTs { get; set; }
+
+        public string Hostname { get; set; }
+
+        [JsonProperty("error-codes")]
+        public List<string> ErrorCodes { get; set; }
+    }
+
     public static class contact_api
     {
         [FunctionName("contact_api")]
@@ -49,10 +67,21 @@ namespace Portfolio.Function
         {
             log.LogInformation("Inside Function!!!");
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            log.LogInformation(requestBody);
             var feedbackRequestData = (FeedbackRequest)JsonConvert.DeserializeObject<FeedbackRequest>(requestBody);
-            var application = (string)feedbackRequestData.Application;
-            log.LogInformation(application);
+
+            /* this is the payload I send from my site */
+            if (string.IsNullOrWhiteSpace(feedbackRequestData.Name)) return new BadRequestResult();
+            if (string.IsNullOrWhiteSpace(feedbackRequestData.Email)) return new BadRequestResult();
+            if (string.IsNullOrWhiteSpace(feedbackRequestData.Subject)) return new BadRequestResult();
+            if (string.IsNullOrWhiteSpace(feedbackRequestData.Token)) return new BadRequestResult();
+
+            // Validate captcha
+            var captchaResponse = await ValidateCaptchaAsync(req, feedbackRequestData.Token);
+            if (!captchaResponse.Success)
+            {
+                log.LogInformation($"reCAPTCHA verification failed.");
+                return new BadRequestObjectResult(new[] { "reCAPTCHA verification failed." });
+            }
 
             var feedback = new Feedback
             {
@@ -67,6 +96,34 @@ namespace Portfolio.Function
             await feedbackCollector.FlushAsync();
 
             return new OkObjectResult(feedback);
+        }
+
+        private static async Task<RecapatchaResponse> ValidateCaptchaAsync(HttpRequest req, string token)
+        {
+            // validate recaptcha token
+            using (var client = new HttpClient())
+            {
+                var query = new QueryBuilder();
+                query.Add("secret", Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY"));
+                query.Add("response", token);
+                query.Add("remoteIp", req.HttpContext.Connection.RemoteIpAddress.ToString());
+
+                var recaptchaUri = new UriBuilder("https://www.google.com/recaptcha/api/siteverify");
+                recaptchaUri.Query = query.ToString();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, recaptchaUri.ToString());
+
+                var response = await client.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new RecapatchaResponse { Success = false, ErrorCodes = { response.StatusCode.ToString() } };  // recaptcha rejected our request
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                var responseData = JsonConvert.DeserializeObject<RecapatchaResponse>(responseString);
+
+                return responseData;
+            }
         }
     }
 }
